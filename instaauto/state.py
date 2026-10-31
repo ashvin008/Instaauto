@@ -1,4 +1,4 @@
-"""Remembers which YouTube videos were already handled, so nothing is posted twice.
+"""Remembers which Drive videos were already handled, so nothing is posted twice.
 
 The file is committed back to the repo by the workflow after every run.
 """
@@ -11,7 +11,6 @@ PENDING = "pending"
 POSTED = "posted"
 FAILED = "failed"
 GAVE_UP = "gave_up"
-SKIPPED = "skipped"
 
 
 def now() -> str:

@@ -6,4 +6,6 @@ venv/
 tmp/
 *.mp4
 *.part
-cookies.txt
+# Never commit the Google service account key (only state.json is tracked)
+*.json
+!state.json

@@ -1,4 +1,4 @@
-name: YouTube Shorts to Instagram Reels
+name: Google Drive videos to Instagram Reels
 
 on:
   schedule:
@@ -14,7 +14,7 @@ permissions:
   contents: write # to commit state.json back
 
 concurrency:
-  group: shorts-to-reels
+  group: drive-to-reels
   cancel-in-progress: false
 
 jobs:
@@ -22,8 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      YT_CHANNEL_ID: ${{ vars.YT_CHANNEL_ID }}
+      GDRIVE_FOLDER_ID: ${{ vars.GDRIVE_FOLDER_ID }}
+      GDRIVE_SERVICE_ACCOUNT: ${{ secrets.GDRIVE_SERVICE_ACCOUNT }}
       CAPTION_TEMPLATE: ${{ vars.CAPTION_TEMPLATE }}
+      MAX_POSTS_PER_RUN: ${{ vars.MAX_POSTS_PER_RUN }}
       DRY_RUN: ${{ inputs.dry_run }}
     steps:
       - uses: actions/checkout@v4
@@ -35,32 +37,19 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - name: Check YouTube for new Shorts
+      - name: Check Drive folder for new videos
         id: check
-        env:
-          YT_API_KEY: ${{ secrets.YT_API_KEY }}
         run: python -m instaauto check
 
-      # The heavier tools are only installed when there is actually something to post.
+      # ffmpeg is only needed (to check/convert the video) when there is something to post.
       - name: Install ffmpeg
         if: steps.check.outputs.pending == 'true'
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
 
-      - name: Install Deno (needed by yt-dlp for YouTube)
-        if: steps.check.outputs.pending == 'true'
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-
-      - name: Install yt-dlp
-        if: steps.check.outputs.pending == 'true'
-        run: pip install -U "yt-dlp[default]"
-
-      - name: Post Shorts as Reels
+      - name: Post videos as Reels
         if: steps.check.outputs.pending == 'true'
         env:
           IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
-          YT_COOKIES: ${{ secrets.YT_COOKIES }}
         run: python -m instaauto run
 
       - name: Save state
@@ -73,6 +62,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No state changes."
           else
-            git commit -m "Update posted Shorts state"
+            git commit -m "Update posted videos state"
             git push
           fi

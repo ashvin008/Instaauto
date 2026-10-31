@@ -1,1 +1,1 @@
-"""Automatically repost new YouTube Shorts as Instagram Reels."""
+"""Automatically post videos from a Google Drive folder as Instagram Reels."""
