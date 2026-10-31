@@ -1,0 +1,3 @@
+requests>=2.32
+# yt-dlp is installed separately in the workflow (always the latest release),
+# because YouTube changes often and old yt-dlp versions stop working.
